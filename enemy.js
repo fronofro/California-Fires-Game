@@ -12,10 +12,10 @@ class Enemy {
     }
   
     spawn(){
-      if(this.x>width || 
-        this.x<0 || 
-        this.y >height||
-        this.y<0){
+      if(this.x>width+20 || 
+        this.x<-20 || 
+        this.y >height+20||
+        this.y<-20){
           this.x = this.x
           this.y = this.y
           return true
@@ -54,19 +54,26 @@ class Enemy {
         if (mic.getLevel()>.1){
           this.direction = -1
       }
-        if (this.x>width +100 ||
-         this.x< -100 ||
-         this.y>height+50||
-         this.y<-50) {
+        if (this.x>width +120 ||
+         this.x< -120 ||
+         this.y>height+60||
+         this.y<-60) {
               this.direction = 1
+              this.x = random(-width,width*2)
+              this.y = random(-height,height*2)
+              while(this.spawn()==false){
+                this.spawn()
+              }
       }
     }
+
     killF(other) {
       return !(other.x-other.w/2 > this.x +this.w/2 ||
                other.x+other.w/2 < this.x -this.w/2 ||
                other.y-other.h/2 > this.y +this.h/2 ||
                other.y+other.h/2 < this.y -this.h/2)
-    }
+      }
+
     gameOver(other){
         if (this.killF(other)) {
           gameover.html("GAMEOVER")
@@ -74,4 +81,5 @@ class Enemy {
         other.dead = true
       }
     }
+
   }
