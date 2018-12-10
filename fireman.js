@@ -6,7 +6,7 @@ class Fireman {
       this.w = 50
       this.h = 100
       this.onFire = false
-      this.speed = 100
+      this.speed = 5
       this.dead = false
     }
   

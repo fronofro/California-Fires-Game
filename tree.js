@@ -1,11 +1,10 @@
-class Bubble {
-    constructor(x, y, img, trees, w = 50, h = 50) {
+class Tree {
+    constructor(x, y, img, w = 50, h = 50) {
       this.x = x;
       this.y = y;
       this.img = img
       this.w = this.img.width;
       this.h = this.img.height;
-      this.trees = trees
       this.fire = st
       this.onFire = false
       this.watered = false
@@ -28,7 +27,7 @@ class Bubble {
         py < this.y + this.h / 2
     }
   
-    bubbleIn(other) {
+    treeIn(other) {
       return !(other.x - other.w / 2 > this.x + this.w / 2 ||
         other.x + other.w / 2 < this.x - this.w / 2 ||
         other.y - other.h / 2 > this.y + this.h / 2 ||

@@ -3,6 +3,7 @@ class Enemy {
       this.x = random(-width,width*2)
       this.y = random(-height,height*2)
       this.img = loadImage('https://i.imgur.com/j5fHktZ.png')
+      this.fire = loadImage('https://i.imgur.com/rCqzbdQ.png')
       this.w = 80
       this.h = 50
       this.onFire = false
@@ -28,6 +29,10 @@ class Enemy {
 
     show() {
         image(this.img,this.x, this.y,this.w,this.h)
+        if (this.onFire) {
+          image(this.fire, this.x+10, this.y - this.h / 4, 30, 30)
+          image(this.fire, this.x-10, this.y - this.h / 4, 30, 30)
+        }
     }
     
     moveTo(){

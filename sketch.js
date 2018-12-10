@@ -1,6 +1,6 @@
 //global variables
-var bubbles = []
 var trees = []
+var treeTypes = []
 var spray = []
 var flaming = false
 var fireAlarm
@@ -10,6 +10,7 @@ var mic
 var gameover
 var points
 var total = 0
+var flamingBears = 0
 
 //Getting those imagez loaded bitch
 function preload() {
@@ -19,6 +20,7 @@ function preload() {
   st = loadImage('https://i.imgur.com/rCqzbdQ.png')
 }
 
+//SETUP
 function setup() {
   //Create Canvas and settings
   createCanvas(1200, 600);
@@ -28,19 +30,19 @@ function setup() {
   points = createElement("h1", "Trees Saved: ")
   
   //Create initial trees
-  trees = [seq, rw, mc]
+  treeTypes = [seq, rw, mc]
   for (var i = 0; i < 200; i++) {
     let x = random(width)
     let y = random(height)
-    let img = random(trees)
-    b = new Bubble(x, y, img, trees);
-    bubbles.push(b)
+    let img = random(treeTypes)
+    tree = new Tree(x, y, img);
+    trees.push(tree)
   }
   
   //Create fireman
   fireman = new Fireman(width/2,height/2)
   
-  //Create enemies
+  //Create initial enemies
   for (var j = 0; j < 8; j++) {
     e = new Enemy()
     while(e.spawn()==false){
@@ -54,6 +56,7 @@ function setup() {
   mic.start()
 }
 
+//MAIN LOOP
 function draw() {
   cursor('https://i.imgur.com/ohGs6Ew.png', 30, 2)
   background(220);
@@ -62,34 +65,35 @@ function draw() {
   fireAlarm.position(width/2-50 + random(-1, 1), 680)
   
   //Trees
-  for (var i = 0; i < bubbles.length - 1; i++) {
-    bubbles[i].show()
-    bubbles[i].move()
+  for (var i = 0; i < trees.length - 1; i++) {
+    trees[i].show()
+    trees[i].move()
     
     //Set on fire if mouse intersects
-    if (bubbles[i].mouseIn(mouseX, mouseY)) {
-      bubbles[i].changeImage()
+    if (trees[i].mouseIn(mouseX, mouseY)) {
+      trees[i].changeImage()
     }
     
     //Check and change to flaming if intersecting with flaming tree
     changeFlame()
-    spreadFire(bubbles[i])
+    spreadFire(trees[i])
     
     //after trees exit canvas create new ones on the other side
-    if (bubbles[i].x < 0 - bubbles[i].img.width) {
-      circleBack(bubbles[i])
+    if (trees[i].x < 0 - trees[i].img.width) {
+      circleBack(trees[i])
     }
     
-    if (bubbles[i].onFire){
-    	if (bubbles[i].bubbleIn(fireman)&&!fireman.dead) {
-      	bubbles[i].watered=true
+    if (trees[i].onFire){
+    	if (trees[i].treeIn(fireman)&&!fireman.dead) {
+      	trees[i].watered=true
       	total += 1
       	actualPoints = floor(total)
     		points.html("Trees Saved: " + actualPoints)
-        bubbles[i].onFire = false
+        trees[i].onFire = false
     	}
     }
   }
+  //END OF TREES INFO
   
   //FIREMAN display and water
   fireman.sprayWater()
@@ -97,7 +101,33 @@ function draw() {
   if (spray.length > 20) {
     spray.splice(0,1)
     }
+    
+  //Fireman controls
+  if (keyIsDown(RIGHT_ARROW)) {
+    fireman.moveRight()
+  }
+  if (keyIsDown(LEFT_ARROW)) {
+    fireman.moveLeft()
+  }
+  if (keyIsDown(UP_ARROW)) {
+    fireman.moveUp()
+  }
+  if (keyIsDown(DOWN_ARROW)) {
+    fireman.moveDown()
+  }
   
+  //FINAL BOSS SPAWN
+  if (total == 20 && flamingBears == 0){
+    e = new Enemy()
+    while(e.spawn()==false){
+      e.spawn()
+    }
+    e.speed = 3
+    e.onFire = true
+    enemies.push(e)
+    flamingBears += 1
+  }
+
   //Enemy display and move toward firemant
   for (var enemy of enemies){
   	enemy.show()
@@ -107,38 +137,28 @@ function draw() {
   }
   
 }
+//END OF MAIN LOOP
+
+
 
 function keyPressed() {
   //Clear all fire
   if (keyCode === SHIFT) {
-    for (let bubble of bubbles) {
-      bubble.onFire = false
+    for (let tree of trees) {
+      tree.onFire = false
     }
   }
-  //Fireman controls
-  if (keyCode === RIGHT_ARROW) {
-      fireman.moveRight()
-    }
-  if (keyCode === LEFT_ARROW) {
-      fireman.moveLeft()
-    }
-  if (keyCode === UP_ARROW) {
-      fireman.moveUp()
-    }
-  if (keyCode === DOWN_ARROW) {
-      fireman.moveDown()
-    }
 }
 
 
-function circleBack(b) {
-  b.img = random(trees)
-  b.w = b.img.width
-  b.h = b.img.height
-  b.onFire = false
-  b.x = width + b.w/2
-  b.y = random(height)
-  b.watered = false
+function circleBack(tree) {
+  tree.img = random(treeTypes)
+  tree.w = tree.img.width
+  tree.h = tree.img.height
+  tree.onFire = false
+  tree.x = width + tree.w/2
+  tree.y = random(height)
+  tree.watered = false
 }
 
 function flames() {
@@ -146,20 +166,20 @@ function flames() {
   flaming = true
 }
 
-function spreadFire(b) {
-  for (var j = 0; j < bubbles.length - 1; j++) {
-    if (b != bubbles[j] &&
-      b.onFire &&
-      (b.bubbleIn(bubbles[j]))) {
-      bubbles[j].changeImage()
+function spreadFire(tree) {
+  for (var j = 0; j < trees.length - 1; j++) {
+    if (tree != trees[j] &&
+      tree.onFire &&
+      (tree.treeIn(trees[j]))) {
+        trees[j].changeImage()
     }
   }
 }
 
 function checkFlames() {
   flameCount = 0
-	for (var i = 0; i < bubbles.length - 1; i++)
-    if (bubbles[i].onFire && !bubbles[i].watered) {
+	for (var i = 0; i < trees.length - 1; i++)
+    if (trees[i].onFire && !trees[i].watered) {
       flameCount = 1
     }
   return flameCount == 1
