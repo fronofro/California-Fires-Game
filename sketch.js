@@ -20,6 +20,13 @@ function preload() {
   st = loadImage('https://i.imgur.com/rCqzbdQ.png')
 }
 
+//Chrome Security requires a mouse click before audio
+function mouseClicked(){
+   if (getAudioContext().state !== 'running') {
+    getAudioContext().resume();
+  }
+}
+
 //SETUP
 function setup() {
   //Create Canvas and settings
